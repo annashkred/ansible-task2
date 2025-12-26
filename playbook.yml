@@ -1,0 +1,68 @@
+---
+- name: Configure Web Server & Firewall
+  hosts: web
+  become: yes
+  
+  vars:
+    # Твоя подсеть (замени, если отличается, например на 192.168.0.0/24)
+    allowed_subnet: "192.168.1.0/24"
+
+  tasks:
+    # --- ПУНКТ 1: Установка Nginx ---
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    # --- ПУНКТ 2: Конфиг из шаблона + Handler ---
+    # "кладёт конфиг nginx из шаблона... используя handler’ы"
+    - name: Copy Nginx config
+      template:
+        src: tmpls/nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+      notify: Restart Nginx  # <--- Вызов хендлера при изменении
+
+    # "HTML с hostname и текущим временем"
+    - name: Deploy Index Page
+      template:
+        src: tmpls/index.html.j2
+        dest: /var/www/html/index.html
+
+    # --- ПУНКТ 3: Автозапуск и включение сервиса ---
+    # "обеспечивает, что сервис включён в автозапуск и запущен"
+    - name: Ensure Nginx is running and enabled
+      service:
+        name: nginx
+        state: started   # <--- Сервис запущен прямо сейчас
+        enabled: yes     # <--- Включен в автозапуск (systemd enable)
+
+    # --- ПУНКТ 4: Настройка Firewall (UFW) ---
+    # "HTTP‑порт доступен только из заданной подсети... с других блокируется"
+    
+    # 1. Включаем фаервол (по умолчанию он блокирует всё входящее, кроме разрешенного)
+    - name: Enable UFW Firewall
+      ufw:
+        state: enabled
+        policy: deny  # Явно говорим: всё, что не разрешено — запретить
+
+    # 2. Обязательно разрешаем SSH, иначе потеряем доступ!
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    # 3. Разрешаем 80 порт ТОЛЬКО для своей подсети
+    - name: Allow HTTP only from subnet
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+        from_ip: "{{ allowed_subnet }}"
+
+  # --- HANDLERS (Обработчики) ---
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

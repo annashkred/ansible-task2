@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Темная тема */
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ecf0f1;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 { 
+            margin: 0 0 30px 0; 
+            font-weight: 300; 
+            text-align: center; 
+            letter-spacing: 1px;
+        }
+        .grid {
+            display: grid;
+            gap: 15px;
+        }
+        .card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #3498db;
+        }
+        .card:hover { background: rgba(0,0,0,0.4); }
+        .label { font-size: 0.75em; color: #95a5a6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;}
+        .value { font-size: 1.1em; font-weight: 600; }
+        .icon { font-size: 1.5em; opacity: 0.8; }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #7f8c8d;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 15px;
+        }
+        .status {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 0.8em;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="status">● Active & Running</div>
+    <h1>Ansible Dashboard</h1>
+
+    <div class="grid">
+        <div class="card">
+            <div>
+                <div class="label">Server Hostname</div>
+                <div class="value">{{ ansible_hostname }}</div>
+            </div>
+            <div class="icon">🖥️</div>
+        </div>
+
+        <div class="card">
+            <div>
+                <div class="label">IP Address</div>
+                <div class="value">{{ ansible_default_ipv4.address }}</div>
+            </div>
+            <div class="icon">📡</div>
+        </div>
+
+        <div class="card">
+            <div>
+                <div class="label">OS / Distribution</div>
+                <div class="value">{{ ansible_distribution }} {{ ansible_distribution_version }}</div>
+            </div>
+            <div class="icon">🐧</div>
+        </div>
+
+        <div class="card" style="border-left-color: #f1c40f;">
+            <div>
+                <div class="label">Last Configured At</div>
+                <div class="value">{{ ansible_date_time.time }} <span style="font-size:0.7em; color:#bdc3c7">{{ ansible_date_time.date }}</span></div>
+            </div>
+            <div class="icon">⏱️</div>
+        </div>
+
+        <div class="card" style="border-left-color: #e74c3c;">
+            <div>
+                <div class="label">Managed By</div>
+                <div class="value">Ansible Controller</div>
+            </div>
+            <div class="icon">🚀</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Configuration Management Lab Task
+    </div>
+</div>
+
+</body>
+</html>
